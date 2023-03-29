@@ -16,8 +16,7 @@ target "image" {
   dockerfile = "./Dockerfile"
 
   tags = [
-    "ghcr.io/${REPO}:${TAG}",
-    "ghcr.io/${REPO}:${SHA_SHORT}"
+    "ghcr.io/${REPO}:${TAG}"
   ]
 
   args = {

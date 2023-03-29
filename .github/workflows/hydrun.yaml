@@ -45,7 +45,6 @@ jobs:
           DESCRIPTION: iPXE tftp server
           URL: https://github.com/${{ github.repository }}
           SHA: ${{ github.sha }}
-          SHA_SHORT: ${{ steps.vars.outputs.sha_short }}
           AUTHOR: ${{ github.repository_owner }}
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
