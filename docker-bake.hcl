@@ -37,6 +37,6 @@ target "image" {
     "org.opencontainers.image.base.name" = "docker.io/alpine:${TAG}"
   }
 
-  platforms = ["linux/arm64", "linux/armhf", "linux/arm/v7", "linux/ppc64le", "linux/s390x", "linux/386", "linux/amd64"]
+  platforms = ["linux/arm64", "linux/armhf", "linux/arm/v7", "linux/386", "linux/amd64"]
   #platforms = ["linux/arm64", "linux/amd64"]
 }
