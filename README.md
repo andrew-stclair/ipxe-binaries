@@ -16,8 +16,6 @@ Binaries are compiled with HTTPS support enabled and are being built for the fol
 - `bin-arm32-efi/snp.efi`
 - `bin-arm64-efi/snp.efi`
 
-Also included is a [bofied](https://github.com/andrew-stclair/bofied) configuration file ([config.go](./downstream/config.go)) and an example iPXE script ([config.ipxe](./downstream/config.ipxe)) which chainloads [netboot.xyz](https://netboot.xyz/).
-
 ## License
 
 ipxe-binaries (c) 2021 Felicitas Pojtinger and contributors
