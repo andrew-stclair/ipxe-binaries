@@ -80,4 +80,4 @@ cp bin-arm32-efi/snp.efi ../../docker/ipxe-arm32.efi
 # Stage 64-bit ARM
 cp bin-arm64-efi/snp.efi ../../docker/ipxe-arm64.efi
 
-cp ../../downstream/config.ipxe ../../docker
+cp ../../downstream/config.ipxe ../../docker/config.ipxe
