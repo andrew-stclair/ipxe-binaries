@@ -45,6 +45,11 @@ jobs:
           files: |
             tmp/*
             staging/*
+      - name: List stuff
+        run: |
+          pwd
+          ls -la
+          find / -name config.ipxe -type f
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v4.0.0
