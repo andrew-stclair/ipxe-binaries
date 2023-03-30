@@ -49,6 +49,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v4.0.0
         with:
+          version: v0.7.0
           platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
           push: true
           tags: |
