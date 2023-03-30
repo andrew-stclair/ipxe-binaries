@@ -36,7 +36,7 @@ jobs:
       - name: Build with hydrun
         run: hydrun -a amd64 ./Hydrunfile
       - name: Build and Push Dockerfile
-        run: docker buildx bake -f ./docker-bake.hcl --push --provenance=true
+        run: docker buildx bake -f ./docker-bake.hcl --push --sbom=true
         env:
           REPO: ${{ github.repository }}
           TAG: latest
