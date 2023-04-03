@@ -21,6 +21,8 @@ jobs:
           echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z >> $GITHUB_OUTPUT"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          version: 0.7.0
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Login to Container Registry
@@ -52,8 +54,6 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
-          version: 0.7.0
-          provenance: false
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
