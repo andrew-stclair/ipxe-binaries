@@ -69,3 +69,4 @@ jobs:
             org.opencontainers.image.description:iPXE tftp server built on alpine:latest
             org.opencontainers.image.base.name:docker.io/alpine:latest
           pull: false
+          context: .
