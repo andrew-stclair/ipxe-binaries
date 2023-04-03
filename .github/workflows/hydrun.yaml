@@ -36,7 +36,7 @@ jobs:
       - name: Build with hydrun
         run: hydrun -a amd64 ./Hydrunfile
       - name: List built files
-        run: ls -la tmp
+        run: ls -la tmp; sudo chmod -R 777 tmp
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
