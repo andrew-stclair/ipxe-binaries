@@ -35,6 +35,8 @@ jobs:
           sudo install /tmp/hydrun /usr/local/bin
       - name: Build with hydrun
         run: hydrun -a amd64 ./Hydrunfile
+      - name: List built files
+        run: ls -la tmp
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
