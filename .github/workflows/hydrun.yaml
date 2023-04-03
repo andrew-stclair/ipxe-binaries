@@ -50,6 +50,7 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
+          version: 0.7.0
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
