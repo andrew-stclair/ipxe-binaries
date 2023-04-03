@@ -22,7 +22,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
-          version: v0.7.0
+          version: v0.6.3
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Login to Container Registry
@@ -51,7 +51,7 @@ jobs:
             staging/*
       - name: Build and Push Dockerfile
         id: docker_build
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v3.0.0
         with:
           platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
           push: true
