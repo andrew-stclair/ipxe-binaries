@@ -36,6 +36,17 @@ jobs:
           sudo install /tmp/hydrun /usr/local/bin
       - name: Build with hydrun
         run: hydrun -a amd64 ./Hydrunfile
+      - name: Store artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: artifacts
+          path: tmp
+      - name: Store staging artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: staging-artifacts
+          path: staging
+
   release:
     name: Publish to github release
     permissions: write-all
@@ -43,6 +54,15 @@ jobs:
     needs: build-linux
 
     steps:
+      - uses: actions/checkout@master
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+          path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: staging-artifacts
+          path: staging
       - name: List
         run: |
           ls -la .
@@ -57,6 +77,7 @@ jobs:
           files: |
             tmp/*
             staging/*
+
   container:
     name: Publish to container
     permissions: write-all
@@ -64,6 +85,11 @@ jobs:
     needs: build-linux
 
     steps:
+      - uses: actions/checkout@master
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+          path: tmp
       - name: List
         run: |
           ls -la .
