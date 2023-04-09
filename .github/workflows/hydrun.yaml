@@ -102,7 +102,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v3.2.0
         with:
-          platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
+          platforms: linux/arm64,linux/armhf,linux/386,linux/amd64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
