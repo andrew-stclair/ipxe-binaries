@@ -60,7 +60,8 @@ jobs:
     needs: build-linux
 
     steps:
-      id: docker_build
+      - name: Build and Push Dockerfile
+        id: docker_build
         uses: docker/build-push-action@v3.2.0
         with:
           platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
