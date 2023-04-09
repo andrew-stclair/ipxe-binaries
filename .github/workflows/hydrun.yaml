@@ -18,8 +18,7 @@ jobs:
       - name: Get Vars
         id: vars
         run: |
-          echo "sha_short=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT"
-          echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z >> $GITHUB_OUTPUT"
+          echo "week_of_year=$(date +"%Y%U") >> $GITHUB_OUTPUT"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Set up QEMU
@@ -67,12 +66,16 @@ jobs:
         run: |
           ls -la .
           ls -la tmp
+      - name: Get Vars
+        id: vars
+        run: |
+          echo "week_of_year=$(date +"%Y%U") >> $GITHUB_OUTPUT"
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
+          automatic_release_tag: ${{ steps.vars.outputs.week_of_year }}
           prerelease: false
           files: |
             tmp/*
@@ -104,6 +107,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Vars
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT"
+          echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z >> $GITHUB_OUTPUT"
+          echo "week_of_year=$(date +"%Y%U") >> $GITHUB_OUTPUT"
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v3.2.0
@@ -112,6 +121,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.week_of_year }}
           labels: |
             org.opencontainers.artifact.created:${{ steps.vars.outputs.rfc3339 }}
             org.opencontainers.artifact.description:iPXE tftp server
