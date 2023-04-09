@@ -15,16 +15,11 @@ jobs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
       rfc3339: ${{ steps.vars.outputs.rfc3339 }}
       week_of_year: ${{ steps.vars.outputs.week_of_year }}
+      ipxe_version: ${{ steps.vars.outputs.ipxe_version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Get Vars
-        id: vars
-        run: |
-          echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-          echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z" >> "$GITHUB_OUTPUT"
-          echo "week_of_year=$(date +'%Y%U')" >> "$GITHUB_OUTPUT"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Set up QEMU
@@ -41,6 +36,13 @@ jobs:
           sudo install /tmp/hydrun /usr/local/bin
       - name: Build with hydrun
         run: hydrun -a amd64 ./Hydrunfile
+      - name: Get Vars
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z" >> "$GITHUB_OUTPUT"
+          echo "week_of_year=$(date +'%Y%U')" >> "$GITHUB_OUTPUT"
+          echo "ipxe_version=$(cd upstream; git describe --tags $(git rev-list --tags --max-count=1))" >> "$GITHUB_OUTPUT"
       - name: Store artifacts
         uses: actions/upload-artifact@master
         with:
@@ -69,6 +71,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          title: "iPXE Build ${{needs.build-linux.outputs.ipxe_version}}"
           automatic_release_tag: ${{needs.build-linux.outputs.week_of_year}}
           prerelease: false
           files: staging/*
@@ -114,7 +117,7 @@ jobs:
             org.opencontainers.image.version:${{ github.sha }}
             org.opencontainers.image.revision:${{ github.sha }}
             org.opencontainers.image.title:iPXE tftp server
-            org.opencontainers.image.description:iPXE tftp server built on alpine:latest
+            org.opencontainers.image.description:iPXE tftp server built on alpine:latest with iPXE ${{needs.build-linux.outputs.ipxe_version}}
             org.opencontainers.image.base.name:docker.io/alpine:latest
           pull: false
           context: .
