@@ -43,6 +43,10 @@ jobs:
     needs: build-linux
 
     steps:
+      - name: List
+        run: |
+          ls -la .
+          ls -la tmp
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
@@ -60,6 +64,14 @@ jobs:
     needs: build-linux
 
     steps:
+      - name: List
+        run: |
+          ls -la .
+          ls -la tmp
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v3.2.0
