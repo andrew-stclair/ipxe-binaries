@@ -44,7 +44,7 @@ jobs:
       - name: Store artifacts
         uses: actions/upload-artifact@master
         with:
-          name: artifacts
+          name: tmp-artifacts
           path: tmp
       - name: Store staging artifacts
         uses: actions/upload-artifact@master
@@ -64,10 +64,6 @@ jobs:
         with:
           name: staging-artifacts
           path: staging
-      - name: List
-        run: |
-          ls -la .
-          ls -la tmp
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
@@ -87,12 +83,8 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/download-artifact@master
         with:
-          name: artifacts
+          name: tmp-artifacts
           path: tmp
-      - name: List
-        run: |
-          ls -la .
-          ls -la tmp
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
