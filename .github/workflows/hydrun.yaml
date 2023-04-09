@@ -62,10 +62,6 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/download-artifact@master
         with:
-          name: artifacts
-          path: tmp
-      - uses: actions/download-artifact@master
-        with:
           name: staging-artifacts
           path: staging
       - name: List
@@ -79,9 +75,7 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: ${{needs.build-linux.outputs.week_of_year}}
           prerelease: false
-          files: |
-            tmp/*
-            staging/*
+          files: staging/*
 
   container:
     name: Publish to container
