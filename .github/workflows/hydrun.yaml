@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-linux:
+    name: Build
     permissions: write-all
     runs-on: ubuntu-latest
 
@@ -19,10 +20,10 @@ jobs:
         run: |
           echo "sha_short=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT"
           echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z >> $GITHUB_OUTPUT"
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Login to Container Registry
         uses: docker/login-action@v2
         with:
@@ -35,11 +36,79 @@ jobs:
           sudo install /tmp/hydrun /usr/local/bin
       - name: Build with hydrun
         run: hydrun -a amd64 ./Hydrunfile
+      - name: Store artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: artifacts
+          path: tmp
+      - name: Store staging artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: staging-artifacts
+          path: staging
+
+  release:
+    name: Publish to github release
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: build-linux
+
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+          path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: staging-artifacts
+          path: staging
+      - name: List
+        run: |
+          ls -la .
+          ls -la tmp
+      - name: Publish to GitHub releases
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          files: |
+            tmp/*
+            staging/*
+
+  container:
+    name: Publish to container
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: build-linux
+
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+          path: tmp
+      - name: List
+        run: |
+          ls -la .
+          ls -la tmp
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push Dockerfile
         id: docker_build
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v3.2.0
         with:
-          platforms: linux/arm64,linux/armhf,linux/arm/v7,linux/386,linux/amd64
+          platforms: linux/arm64,linux/armhf,linux/386,linux/amd64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
@@ -56,14 +125,4 @@ jobs:
             org.opencontainers.image.description:iPXE tftp server built on alpine:latest
             org.opencontainers.image.base.name:docker.io/alpine:latest
           pull: false
-      - name: Publish to GitHub releases
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: marvinpinto/action-automatic-releases@latest
-        with:
           context: .
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: false
-          files: |
-            tmp/*
-            staging/*
