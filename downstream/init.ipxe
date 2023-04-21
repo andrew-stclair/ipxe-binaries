@@ -1,4 +1,4 @@
 #!ipxe
 
 dhcp
-chain tftp://${netX/next-server}/config.ipxe
+chain tftp://${netX/next-server}/menu.ipxe
