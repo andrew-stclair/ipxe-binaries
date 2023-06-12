@@ -106,7 +106,7 @@ jobs:
           cp ./downstream/boot.cfg ./tmp/boot.cfg
       - name: Build and Push Dockerfile
         id: docker_build
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.1.0
         with:
           platforms: linux/arm64,linux/armhf,linux/386,linux/amd64
           push: true
