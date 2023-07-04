@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: tmp-artifacts
-          path: tmp
+          path: container
       - name: Store staging artifacts
         uses: actions/upload-artifact@master
         with:

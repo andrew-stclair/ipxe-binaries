@@ -62,24 +62,24 @@ EMBEDDED_MAKE CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 bin-arm64-efi/snp.efi 
 wait
 
 # Create tmp directory
-rm -rf ../../tmp
-mkdir -p ../../tmp
+rm -rf ../../container
+mkdir -p ../../container
 
 # Stage
-cp bin-i386-pcbios/ipxe.kpxe ../../tmp/ipxe-i386.kpxe                               # Legacy
-cp bin-i386-efi/ipxe.efi ../../tmp/ipxe-i386.efi                                    # UEFI i386
-cp bin-x86_64-efi/ipxe.efi ../../tmp/ipxe-x86_64.efi                                # UEFI x86_64
-cp bin-arm32-efi/snp.efi ../../tmp/ipxe-arm32.efi                                   # UEFI arm32
-cp bin-arm64-efi/snp.efi ../../tmp/ipxe-arm64.efi                                   # UEFI arm64
+cp bin-i386-pcbios/ipxe.kpxe ../../container/ipxe-i386.kpxe                               # Legacy
+cp bin-i386-efi/ipxe.efi ../../container/ipxe-i386.efi                                    # UEFI i386
+cp bin-x86_64-efi/ipxe.efi ../../container/ipxe-x86_64.efi                                # UEFI x86_64
+cp bin-arm32-efi/snp.efi ../../container/ipxe-arm32.efi                                   # UEFI arm32
+cp bin-arm64-efi/snp.efi ../../container/ipxe-arm64.efi                                   # UEFI arm64
 
 # Stage downstream files
-cp ../../downstream/*.ipxe ../../tmp/.
-rm -rf ../../tmp/init.ipxe
+cp ../../downstream/*.ipxe ../../container/.
+rm -rf ../../container/init.ipxe
 
 # Create tar archive in staging directory
 rm -rf ../../staging
 mkdir -p ../../staging
-tar -zcvf ../../staging/ipxe.tar.gz -C ../../tmp .
+tar -zcvf ../../staging/ipxe.tar.gz -C ../../container .
 
 # Go back to starting dir
 cd $START_PWD
