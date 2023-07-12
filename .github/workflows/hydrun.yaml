@@ -49,12 +49,13 @@ jobs:
           files: staging/*
       - name: Download latest netboot.xyz
         run: |
+          kmdir -p /opt/ipxe
           wget $(curl https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | grep "browser_" | grep menus.tar.gz | cut -d '"' -f4) -O menus.tar.gz
-          sudo tar -xzvf menus.tar.gz -C /tmp/ipxe
-          sudo rm -rf /tmp/ipxe/boot.cfg
-          sudo cp ./downstream/boot.cfg /tmp/ipxe/boot.cfg
-          sudo chmod -R 777 /tmp/ipxe
-          sudo chown -R $(id -u):$(id -g) /tmp/ipxe
+          sudo tar -xzvf menus.tar.gz -C /opt/ipxe
+          sudo rm -rf /opt/ipxe/boot.cfg
+          sudo cp ./downstream/boot.cfg /opt/ipxe/boot.cfg
+          sudo chmod -R 777 /opt/ipxe
+          sudo chown -R $(id -u):$(id -g) /opt/ipxe
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v4.1.1
