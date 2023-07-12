@@ -60,9 +60,10 @@ jobs:
       - name: Download latest netboot.xyz
         run: |
           wget $(curl https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | grep "browser_" | grep menus.tar.gz | cut -d '"' -f4) -O menus.tar.gz
-          tar -xzvf menus.tar.gz -C ./tmp
-          rm -rf ./tmp/boot.cfg
-          cp ./downstream/boot.cfg ./tmp/boot.cfg
+          sudo tar -xzvf menus.tar.gz -C ./tmp
+          sudo rm -rf ./tmp/boot.cfg
+          sudo cp ./downstream/boot.cfg ./tmp/boot.cfg
+          sudo chmod -R 666 ./tmp
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v3.2.0
