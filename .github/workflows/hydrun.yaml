@@ -67,7 +67,7 @@ jobs:
           sudo chown -R $(id -u):$(id -g) ./tmp
       - name: Build and Push Dockerfile
         id: docker_build
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.1.1
         with:
           platforms: linux/arm64,linux/armhf,linux/386,linux/amd64
           push: true
