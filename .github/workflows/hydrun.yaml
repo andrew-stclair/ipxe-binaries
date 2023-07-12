@@ -43,29 +43,6 @@ jobs:
           echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z" >> "$GITHUB_OUTPUT"
           echo "week_of_year=$(date +'%Y%U')" >> "$GITHUB_OUTPUT"
           echo "ipxe_version=$(cd upstream; git describe --tags $(git rev-list --tags --max-count=1))" >> "$GITHUB_OUTPUT"
-      - name: Store artifacts
-        uses: actions/upload-artifact@master
-        with:
-          name: tmp-artifacts
-          path: container
-      - name: Store staging artifacts
-        uses: actions/upload-artifact@master
-        with:
-          name: staging-artifacts
-          path: staging
-
-  release:
-    name: Publish to github release
-    permissions: write-all
-    runs-on: ubuntu-latest
-    needs: build-linux
-
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/download-artifact@master
-        with:
-          name: staging-artifacts
-          path: staging
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
@@ -75,19 +52,6 @@ jobs:
           automatic_release_tag: ${{needs.build-linux.outputs.week_of_year}}
           prerelease: false
           files: staging/*
-
-  container:
-    name: Publish to container
-    permissions: write-all
-    runs-on: ubuntu-latest
-    needs: build-linux
-
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/download-artifact@master
-        with:
-          name: tmp-artifacts
-          path: tmp
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
