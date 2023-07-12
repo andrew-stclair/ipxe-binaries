@@ -49,7 +49,7 @@ jobs:
           files: staging/*
       - name: Download latest netboot.xyz
         run: |
-          kmdir -p /opt/ipxe
+          mkdir -p /opt/ipxe
           wget $(curl https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | grep "browser_" | grep menus.tar.gz | cut -d '"' -f4) -O menus.tar.gz
           sudo tar -xzvf menus.tar.gz -C /opt/ipxe
           sudo rm -rf /opt/ipxe/boot.cfg
