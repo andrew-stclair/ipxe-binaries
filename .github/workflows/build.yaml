@@ -1,0 +1,133 @@
+name: hydrun CI
+
+on:
+  push:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: Build
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install packages
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt update
+          sudo apt install -y -o Acquire::Retries=50 \
+                           mtools syslinux isolinux \
+                           libc6-dev-i386 valgrind \
+                           libgcc-s1:i386 libc6-dbg:i386
+      - name: Pull iPXE
+        run: |
+          rm -rf upstream
+          mkdir -p upstream
+          git clone https://github.com/ipxe/ipxe.git upstream
+          cd upstream
+          git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
+      - name: Configure iPXE
+        run: |
+          sed -i -e 's/#undef\tDOWNLOAD_PROTO_HTTPS/#define\tDOWNLOAD_PROTO_HTTPS/g' upstream/src/config/general.h
+          sed -i -e 's/#undef\tDOWNLOAD_PROTO_FTP/#define\tDOWNLOAD_PROTO_FTP/g' upstream/src/config/general.h
+          sed -i -e 's/#undef\tDOWNLOAD_PROTO_SLAM/#define\tDOWNLOAD_PROTO_SLAM/g' upstream/src/config/general.h
+          sed -i -e 's/#undef\tDOWNLOAD_PROTO_NFS/#define\tDOWNLOAD_PROTO_NFS/g' upstream/src/config/general.h
+          sed -i -e 's|//#define NSLOOKUP_CMD|#define NSLOOKUP_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define TIME_CMD|#define TIME_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define DIGEST_CMD|#define DIGEST_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define LOTEST_CMD|#define LOTEST_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define VLAN_CMD|#define VLAN_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PXE_CMD|#define PXE_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define REBOOT_CMD|#define REBOOT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define POWEROFF_CMD|#define POWEROFF_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define IMAGE_TRUST_CMD|#define IMAGE_TRUST_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PCI_CMD|#define PCI_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PARAM_CMD|#define PARAM_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define NEIGHBOUR_CMD|#define NEIGHBOUR_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PING_CMD|#define PING_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define CONSOLE_CMD|#define CONSOLE_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define IPSTAT_CMD|#define IPSTAT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PROFSTAT_CMD|#define PROFSTAT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define NTP_CMD|#define NTP_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define CERT_CMD|#define CERT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define IMAGE_MEM_CMD|#define IMAGE_MEM_CMD|g' upstream/src/config/general.h
+          cp downstream/init.ipxe upstream/src/.
+      - name: Build iPXE
+        run: |
+          cd upstream
+          make EMBED=\"init.ipxe\" -j 4 -C src bin-i386-pcbios/ipxe.kpxe
+          make EMBED=\"init.ipxe\" -j 4 -C src bin-i386-efi/ipxe.efi
+          make EMBED=\"init.ipxe\" -j 4 -C src bin-x86_64-efi/ipxe.efi
+          make EMBED=\"init.ipxe\" -j 4 -C src CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm32 bin-arm32-efi/snp.efi
+          make EMBED=\"init.ipxe\" -j 4 -C src CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 bin-arm64-efi/snp.efi
+      - name: Move iPXE Binaries
+        run: |
+          rm -rf tmp
+          mkdir -p tmp
+          cp upstream/src/bin-i386-pcbios/ipxe.kpxe tmp/ipxe-i386.kpxe
+          cp upstream/src/bin-i386-efi/ipxe.efi tmp/ipxe-i386.efi
+          cp upstream/src/bin-x86_64-efi/ipxe.efi tmp/ipxe-x86_64.efi
+          cp upstream/src/bin-arm32-efi/snp.efi tmp/ipxe-arm32.efi
+          cp upstream/src/bin-arm64-efi/snp.efi tmp/ipxe-arm64.efi
+          rm -rf staging
+          mkdir -p staging
+          tar -zcvf staging/ipxe.tar.gz -C tmp .
+      - name: Get Vars
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "rfc3339=$(date --rfc-3339=seconds | sed 's/ /T/')Z" >> "$GITHUB_OUTPUT"
+          echo "week_of_year=$(date +'%Y%U')" >> "$GITHUB_OUTPUT"
+          echo "ipxe_version=$(cd upstream; git describe --tags $(git rev-list --tags --max-count=1))" >> "$GITHUB_OUTPUT"
+      - name: Publish to GitHub releases
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}" 
+          title: "iPXE Build ${{steps.vars.outputs.ipxe_version}}"
+          automatic_release_tag: ${{steps.vars.outputs.week_of_year}}
+          prerelease: false
+          files: staging/*
+      - name: Download latest netboot.xyz
+        run: |
+          wget $(curl https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | grep "browser_" | grep menus.tar.gz | cut -d '"' -f4) -O menus.tar.gz
+          sudo tar -xzvf menus.tar.gz -C ./tmp
+          sudo rm -rf ./tmp/boot.cfg
+          sudo cp ./downstream/boot.cfg ./tmp/boot.cfg
+      - name: Build and Push Dockerfile
+        id: docker_build
+        uses: docker/build-push-action@v4.1.1
+        with:
+          platforms: linux/arm64,linux/armhf,linux/386,linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{steps.vars.outputs.week_of_year}}
+          labels: |
+            org.opencontainers.artifact.created:${{steps.vars.outputs.rfc3339}}
+            org.opencontainers.artifact.description:iPXE tftp server
+            org.opencontainers.image.created:${{steps.vars.outputs.rfc3339}}
+            org.opencontainers.image.authors:${AUTHOR}
+            org.opencontainers.image.url:https://github.com/${{ github.repository }}
+            org.opencontainers.image.source:https://github.com/${{ github.repository }}
+            org.opencontainers.image.version:${{ github.sha }}
+            org.opencontainers.image.revision:${{ github.sha }}
+            org.opencontainers.image.title:iPXE tftp server
+            org.opencontainers.image.description:iPXE tftp server built on alpine:latest with iPXE ${{steps.vars.outputs.ipxe_version}}
+            org.opencontainers.image.base.name:docker.io/alpine:latest
+          pull: true
+          context: .
