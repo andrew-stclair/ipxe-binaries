@@ -25,21 +25,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install packages
-        run: |
-          sudo dpkg --add-architecture i386
-          sudo apt update
-          sudo apt install -y -o Acquire::Retries=50 \
-                           mtools syslinux isolinux \
-                           libc6-dev-i386 valgrind \
-                           libgcc-s1:i386 libc6-dbg:i386
       - name: Pull iPXE
         run: |
           rm -rf upstream
           mkdir -p upstream
           git clone https://github.com/ipxe/ipxe.git upstream
           cd upstream
-          git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
+          git checkout master
       - name: Configure iPXE
         run: |
           sed -i -e 's/#undef\tDOWNLOAD_PROTO_HTTPS/#define\tDOWNLOAD_PROTO_HTTPS/g' upstream/src/config/general.h
@@ -66,14 +58,35 @@ jobs:
           sed -i -e 's|//#define CERT_CMD|#define CERT_CMD|g' upstream/src/config/general.h
           sed -i -e 's|//#define IMAGE_MEM_CMD|#define IMAGE_MEM_CMD|g' upstream/src/config/general.h
           cp downstream/init.ipxe upstream/src/.
-      - name: Build iPXE
+      - name: Install packages
         run: |
-          cd upstream
-          make EMBED="init.ipxe" -j 4 -C src bin-i386-pcbios/ipxe.kpxe
-          make EMBED="init.ipxe" -j 4 -C src bin-i386-efi/ipxe.efi
-          make EMBED="init.ipxe" -j 4 -C src bin-x86_64-efi/ipxe.efi
-          make EMBED="init.ipxe" -j 4 -C src CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm32 bin-arm32-efi/snp.efi
-          make EMBED="init.ipxe" -j 4 -C src CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 bin-arm64-efi/snp.efi
+          sudo dpkg --add-architecture i386
+          sudo apt update
+          sudo apt install -y -o Acquire::Retries=50 \
+                           mtools syslinux isolinux \
+                           libc6-dev-i386 valgrind \
+                           libgcc-s1:i386 libc6-dbg:i386 \
+                           gcc-arm-none-eabi gcc-aarch64-linux-gnu
+      - name: Build (Legacy)
+        run: |
+          make EMBED="init.ipxe" -j 4 -C upstream/src \
+               bin-i386-pcbios/ipxe.kpxe
+      - name: Build (x86)
+        run: |
+          make EMBED="init.ipxe" -j 4 -C upstream/src \
+               bin-i386-efi/ipxe.efi
+      - name: Build (x86_64)
+        run: |
+          make EMBED="init.ipxe" -j 4 -C upstream/src \
+               bin-x86_64-efi/ipxe.efi
+      - name: Build (arm32)
+        run: |
+          make EMBED="init.ipxe" -j 4 -C upstream/src CROSS=arm-none-eabi- \
+               bin-arm32-efi/snp.efi
+      - name: Build (arm64)
+        run: |
+          make EMBED="init.ipxe" -j 4 -C upstream/src CROSS=aarch64-linux-gnu- \
+               bin-arm64-efi/snp.efi
       - name: Move iPXE Binaries
         run: |
           rm -rf tmp
