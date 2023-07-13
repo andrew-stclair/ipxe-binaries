@@ -49,7 +49,7 @@ cp ../../downstream/init.ipxe .
 
 # Add the embedded script and use all cores
 shopt -s expand_aliases
-alias EMBEDDED_MAKE="make EMBED=\"init.ipxe\" -j$(nproc)"
+alias EMBEDDED_MAKE="NO_WERROR=1 make EMBED=\"init.ipxe\" -j$(nproc)"
 
 # Build
 EMBEDDED_MAKE bin-i386-pcbios/ipxe.kpxe &                                           # Legacy
