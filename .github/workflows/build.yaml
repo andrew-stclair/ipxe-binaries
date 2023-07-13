@@ -66,7 +66,7 @@ jobs:
                            mtools syslinux isolinux \
                            libc6-dev-i386 valgrind \
                            libgcc-s1:i386 libc6-dbg:i386 \
-                           gcc-arm-none-eabi gcc-aarch64-linux-gnu
+                           gcc-arm-none-eabi gcc-aarch64-linux-gnu gcc-11-aarch64-linux-gnu 
       - name: Build (Legacy)
         run: |
           make EMBED="init.ipxe" -j 4 -C upstream/src \
