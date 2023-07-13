@@ -49,13 +49,10 @@ jobs:
           files: staging/*
       - name: Download latest netboot.xyz
         run: |
-          mkdir -p ./tmp
           wget $(curl https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | grep "browser_" | grep menus.tar.gz | cut -d '"' -f4) -O menus.tar.gz
           sudo tar -xzvf menus.tar.gz -C ./tmp
           sudo rm -rf ./tmp/boot.cfg
           sudo cp ./downstream/boot.cfg ./tmp/boot.cfg
-          sudo chmod -R 777 ./tmp
-          sudo chown -R $(id -u):$(id -g) ./tmp
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v4.1.1
