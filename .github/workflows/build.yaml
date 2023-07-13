@@ -69,11 +69,11 @@ jobs:
       - name: Build iPXE
         run: |
           cd upstream
-          make EMBED=\"init.ipxe\" -j 4 -C src bin-i386-pcbios/ipxe.kpxe
-          make EMBED=\"init.ipxe\" -j 4 -C src bin-i386-efi/ipxe.efi
-          make EMBED=\"init.ipxe\" -j 4 -C src bin-x86_64-efi/ipxe.efi
-          make EMBED=\"init.ipxe\" -j 4 -C src CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm32 bin-arm32-efi/snp.efi
-          make EMBED=\"init.ipxe\" -j 4 -C src CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 bin-arm64-efi/snp.efi
+          make EMBED="init.ipxe" -j 4 -C src bin-i386-pcbios/ipxe.kpxe
+          make EMBED="init.ipxe" -j 4 -C src bin-i386-efi/ipxe.efi
+          make EMBED="init.ipxe" -j 4 -C src bin-x86_64-efi/ipxe.efi
+          make EMBED="init.ipxe" -j 4 -C src CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm32 bin-arm32-efi/snp.efi
+          make EMBED="init.ipxe" -j 4 -C src CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 bin-arm64-efi/snp.efi
       - name: Move iPXE Binaries
         run: |
           rm -rf tmp
