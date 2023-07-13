@@ -117,7 +117,8 @@ jobs:
           wget $(curl https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | grep "browser_" | grep menus.tar.gz | cut -d '"' -f4) -O menus.tar.gz
           sudo tar -xzvf menus.tar.gz -C ./tmp
           sudo rm -rf ./tmp/boot.cfg
-          sudo cp ./downstream/boot.cfg ./tmp/boot.cfg
+          sudo cp downstream/boot.cfg tmp/boot.cfg
+          sudo sed -i "s#&{NETBOOT_VERSION}#$(curl -s https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | jq -r .tag_name)#g" tmp/boot.cfg
       - name: Build and Push Dockerfile
         id: docker_build
         uses: docker/build-push-action@v4.1.1
