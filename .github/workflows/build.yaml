@@ -61,8 +61,8 @@ jobs:
       - name: Install packages
         run: |
           sudo dpkg --add-architecture i386
-          sudo apt update
-          sudo apt install -y -o Acquire::Retries=50 \
+          sudo apt-get update
+          sudo apt-get install -y -o Acquire::Retries=50 \
                            mtools syslinux isolinux \
                            libc6-dev-i386 valgrind \
                            libgcc-s1:i386 libc6-dbg:i386 \
