@@ -34,6 +34,26 @@ jobs:
           git checkout master
       - name: Configure iPXE
         run: |
+          sed -i -e 's/#undef\tDOWNLOAD_PROTO_HTTPS/#define\tDOWNLOAD_PROTO_HTTPS/g' upstream/src/config/general.h
+          sed -i -e 's|//#define NSLOOKUP_CMD|#define NSLOOKUP_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define TIME_CMD|#define TIME_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define DIGEST_CMD|#define DIGEST_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define LOTEST_CMD|#define LOTEST_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define VLAN_CMD|#define VLAN_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PXE_CMD|#define PXE_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define REBOOT_CMD|#define REBOOT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define POWEROFF_CMD|#define POWEROFF_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define IMAGE_TRUST_CMD|#define IMAGE_TRUST_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PCI_CMD|#define PCI_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PARAM_CMD|#define PARAM_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define NEIGHBOUR_CMD|#define NEIGHBOUR_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PING_CMD|#define PING_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define CONSOLE_CMD|#define CONSOLE_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define IPSTAT_CMD|#define IPSTAT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define PROFSTAT_CMD|#define PROFSTAT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define NTP_CMD|#define NTP_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define CERT_CMD|#define CERT_CMD|g' upstream/src/config/general.h
+          sed -i -e 's|//#define IMAGE_MEM_CMD|#define IMAGE_MEM_CMD|g' upstream/src/config/general.h
           cp downstream/init.ipxe upstream/src/.
       - name: Install packages
         run: |
