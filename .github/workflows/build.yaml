@@ -121,7 +121,7 @@ jobs:
           sudo sed -i "s#&{NETBOOT_VERSION}#$(curl -s https://api.github.com/repos/netbootxyz/netboot.xyz/releases/latest | jq -r .tag_name)#g" tmp/boot.cfg
       - name: Build and Push Dockerfile
         id: docker_build
-        uses: docker/build-push-action@v4.1.1
+        uses: docker/build-push-action@v5.1.0
         with:
           platforms: linux/arm64,linux/armhf,linux/386,linux/amd64
           push: true
